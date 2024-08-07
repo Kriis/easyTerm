@@ -1,0 +1,18 @@
+{
+  "name": "easyterm",
+  "version": "1.0.0",
+  "description": "easy serial terminal",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron src/index.js",
+    "dev_run": "set NODE_ENV=dev&&electron src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "AnhLe",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-reload": "^2.0.0-alpha.1",
+    "electron-reloader": "^1.2.3"
+  }
+}
