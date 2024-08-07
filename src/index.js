@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require('electron/main')
+const { app, BrowserWindow, ipcMain  } = require('electron/main')
 const path = require('node:path')
+const { exec } = require('child_process');
 const env = process.env.NODE_ENV || 'dev'
 
 if (env === 'dev') {
@@ -10,15 +11,16 @@ if (env === 'dev') {
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1400,
+    height: 900,
     autoHideMenuBar: true,
     backgroundColor: '#1d2026',
+    resizable: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
     }
   })
-
   win.loadFile('index.html')
 }
 
