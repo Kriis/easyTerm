@@ -1,5 +1,6 @@
 const container = document.getElementById('container')
-const shellPromt = "$&nbsp;"
+const shellPrompt = "$&nbsp;"
+const errorPrompt = `<p><span style="color:red";>&nbsp&nbspx</span> Error: Unknown command</p>`
 
 class Terminal {
     constructor(location) {
@@ -26,7 +27,7 @@ class Terminal {
         <p>ALT + <-: Switch to left screen</p>
         <p>ALT + ->: Switch to right screen</p>
         <p><br></p>
-        <p>${shellPromt}</p>
+        <p>${shellPrompt}</p>
         `
     }
 
@@ -111,19 +112,28 @@ class Terminal {
                 return;
             }
         }
+        if(this.command === undefined) {
+            this.command = ""
+        }
         //handling enter key is press
         if(evt.key === 'Enter') {
             evt.preventDefault(); //disable line break when hit enter
+            
             switch(this.command) {
                 case "clear":
                     this.innerHTML = ``
                     break
+                case "":
+                    break
                 default:
+                    const p = document.createElement('p');
+                    p.innerHTML = errorPrompt
+                    this.appendChild(p)
                     break
             }
             //create new prompt
             const p = document.createElement('p');
-            p.innerHTML = `${shellPromt}`
+            p.innerHTML = `${shellPrompt}`
             this.appendChild(p)
             //put cursor to end of line
             var range,selection;
@@ -143,13 +153,11 @@ class Terminal {
                 range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
                 range.select();//Select the range (make it the visible selection
             }
+            this.scrollTop = this.scrollHeight
             //clear command
             this.command = ""
         }
         else {
-            if(this.command === undefined) {
-                this.command = ""
-            }
             if (evt.key === 'Backspace' || evt.key === 'ArrowLeft') {
                 if(this.command.length === 0) {
                     evt.preventDefault(); // Disable backspace
