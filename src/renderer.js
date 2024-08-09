@@ -58,7 +58,7 @@ class Terminal {
 
     onClickHandler() {
         //put cursor to end of line
-        var range,selection;
+        let range,selection;
         if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
         {
             range = document.createRange();//Create a range (a range is a like the selection but invisible)
@@ -79,7 +79,7 @@ class Terminal {
 
     onFocusHandler() {
         //put cursor to end of line
-        var range,selection;
+        let range,selection;
         if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
         {
             range = document.createRange();//Create a range (a range is a like the selection but invisible)
@@ -110,6 +110,10 @@ class Terminal {
                 case "clear":
                     this.innerHTML = ``
                     break
+                case "list":
+                    break
+                case "connect":
+                    break
                 //empty command
                 case "nbsp;":
                     break
@@ -124,7 +128,7 @@ class Terminal {
             p.innerHTML = `${shellPrompt}`
             this.appendChild(p)
             //put cursor to end of line
-            var range,selection;
+            let range,selection;
             if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
             {
                 range = document.createRange();//Create a range (a range is a like the selection but invisible)
@@ -142,6 +146,20 @@ class Terminal {
                 range.select();//Select the range (make it the visible selection
             }
             this.scrollTop = this.scrollHeight
+        }
+        else if (evt.key === "Backspace" || evt.key === "ArrowLeft") {
+            let selection = window.getSelection()
+            console.log(selection)
+            if(this.lastElementChild.innerHTML === shellPrompt || selection.focusOffset < 3) {
+                evt.preventDefault();
+            }
+        }
+        else if(evt.key == "ArrowUp" || evt.key == "ArrowDown") {
+            evt.preventDefault()
+        }
+        else if (evt.keyCode === 36) {
+            evt.preventDefault()
+            return
         }
     }
 }
