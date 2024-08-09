@@ -7,7 +7,7 @@ class Terminal {
         this.location = location
         this.div = document.createElement("div")
         this.div.setAttribute("class", "terminal")
-        this.div.setAttribute("contenteditable", "true");
+        this.div.setAttribute("contenteditable", "true")
         this.div.setAttribute("spellcheck", "false")
         this.div.setAttribute("tabindex","0")
     }
@@ -53,7 +53,6 @@ class Terminal {
     }
     
     setFocus() {
-        console.log("setFocus on" + this.div)
         this.div.focus()
     }
 
@@ -101,29 +100,18 @@ class Terminal {
     
     keyDownHandler(ev) {
         let evt = ev
-        //handling keycombination
-        if (ev.keyCode == 220 && ev.ctrlKey) {
-            //Ctrl + \
-            return
-        }
-        else {
-            if ( ev.ctrlKey || ev.shiftKey || ev.altKey ) {
-                console.log("Combination key is pressed")
-                return;
-            }
-        }
-        if(this.command === undefined) {
-            this.command = ""
-        }
         //handling enter key is press
         if(evt.key === 'Enter') {
             evt.preventDefault(); //disable line break when hit enter
-            
-            switch(this.command) {
+            let command = this.lastElementChild.innerHTML
+            command = command.substring(2,)
+            console.log(command)
+            switch(command) {
                 case "clear":
                     this.innerHTML = ``
                     break
-                case "":
+                //empty command
+                case "nbsp;":
                     break
                 default:
                     const p = document.createElement('p');
@@ -154,22 +142,6 @@ class Terminal {
                 range.select();//Select the range (make it the visible selection
             }
             this.scrollTop = this.scrollHeight
-            //clear command
-            this.command = ""
-        }
-        else {
-            if (evt.key === 'Backspace' || evt.key === 'ArrowLeft') {
-                if(this.command.length === 0) {
-                    evt.preventDefault(); // Disable backspace
-                }
-                else {
-                    this.command = this.command.substring(0, this.command.length - 1);
-                }
-            }
-            if(evt.key.length === 1) {
-                this.command += evt.key
-            }
-            console.log(this.command)
         }
     }
 }
@@ -189,7 +161,6 @@ if(container.hasChildNodes() === false) {
 
 window.onkeydown = (ev) => {
     //handling keycombination
-    console.log(ev)
     if (ev.keyCode === 220 && ev.ctrlKey) {
         //Ctrl + \ split screen
         createNewTerm("right")
