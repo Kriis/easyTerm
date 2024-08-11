@@ -10,6 +10,9 @@ class Terminal {
         this.div.setAttribute("contenteditable", "true")
         this.div.setAttribute("spellcheck", "false")
         this.div.setAttribute("tabindex","0")
+        this.div.commandHistory = []
+        this.div.commandHistoryIdx = 0
+        this.div.commandHistoryDir = 0 // 1 is up, 0 is down, -1 is none
     }
 
     printBanner() {
@@ -105,7 +108,11 @@ class Terminal {
             evt.preventDefault(); //disable line break when hit enter
             let command = this.lastElementChild.innerHTML
             command = command.substring(2,)
-            console.log(command)
+            this.commandHistory.push(command)
+            this.commandHistoryIdx = this.commandHistory.length - 1
+            this.commandHistoryDir = -1
+            console.log(this.commandHistory)
+
             switch(command) {
                 case "clear":
                     this.innerHTML = ``
@@ -149,13 +156,74 @@ class Terminal {
         }
         else if (evt.key === "Backspace" || evt.key === "ArrowLeft") {
             let selection = window.getSelection()
-            console.log(selection)
-            if(this.lastElementChild.innerHTML === shellPrompt || selection.focusOffset < 3) {
-                evt.preventDefault();
+            if(this.lastElementChild.innerHTML === shellPrompt) {
+                evt.preventDefault()
+            }
+            if (selection && selection.anchorNode.parentNode.tagName === "P") {
+                if(selection.focusOffset < 3) {
+                    evt.preventDefault()
+                }
             }
         }
-        else if(evt.key == "ArrowUp" || evt.key == "ArrowDown") {
+        else if(evt.key == "ArrowUp") {
             evt.preventDefault()
+            if(this.commandHistory.length > 0) {
+                if(this.commandHistoryDir === 0) {
+                    this.commandHistoryIdx -= 1
+                }
+                this.commandHistoryDir = 1
+                this.lastElementChild.innerHTML = `$ ${this.commandHistory[this.commandHistoryIdx]}`
+                let range,selection
+                if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+                {
+                    range = document.createRange();//Create a range (a range is a like the selection but invisible)
+                    range.selectNodeContents(this);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    selection = window.getSelection();//get the selection object (allows you to change selection)
+                    selection.removeAllRanges();//remove any selections already made
+                    selection.addRange(range);//make the range you have just created the visible selection
+                }
+                else if(document.selection)//IE 8 and lower
+                { 
+                    range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+                    range.moveToElementText(this);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    range.select();//Select the range (make it the visible selection
+                }
+                if(this.commandHistoryIdx > 0) {
+                    this.commandHistoryIdx -= 1
+                }
+            }
+        }
+        else if(evt.key == "ArrowDown") {
+            evt.preventDefault()
+            if(this.commandHistory.length > 0) {
+                if(this.commandHistoryDir === 1) {
+                    this.commandHistoryIdx += 1
+                }
+                this.commandHistoryDir = 0
+                this.lastElementChild.innerHTML = `$ ${this.commandHistory[this.commandHistoryIdx]}`
+                let range,selection
+                if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+                {
+                    range = document.createRange();//Create a range (a range is a like the selection but invisible)
+                    range.selectNodeContents(this);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    selection = window.getSelection();//get the selection object (allows you to change selection)
+                    selection.removeAllRanges();//remove any selections already made
+                    selection.addRange(range);//make the range you have just created the visible selection
+                }
+                else if(document.selection)//IE 8 and lower
+                { 
+                    range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+                    range.moveToElementText(this);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    range.select();//Select the range (make it the visible selection
+                }
+                if(this.commandHistoryIdx < this.commandHistory.length-1) {
+                    this.commandHistoryIdx += 1
+                }
+            }
         }
         else if (evt.keyCode === 36) {
             evt.preventDefault()
