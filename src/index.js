@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron/main')
 const path = require('node:path')
-const { exec } = require('child_process');
+const { SerialPort } = require('serialport')
 const env = process.env.NODE_ENV || 'dev'
 let win
 if (env === 'dev') {
@@ -23,6 +23,15 @@ function createWindow () {
   })
   win.loadFile('index.html')
 }
+
+ipcMain.handle('list', async (_event, args) => {
+  console.log("Receive args", args)
+  return {portName: "COM4"}
+  // const ports = await SerialPort.list()
+  // const listRspData = {term: args, ports}
+  // console.log(listRspData)
+  // win.webContents.send('show_list', listRspData)
+})
 
 app.whenReady().then(() => {
   // // Register a 'CommandOrControl+Y' shortcut listener.

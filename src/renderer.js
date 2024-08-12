@@ -13,6 +13,7 @@ class Terminal {
         this.div.commandHistory = []
         this.div.commandHistoryIdx = 0
         this.div.commandHistoryDir = 0 // 1 is up, 0 is down, -1 is none
+        this.div.createPromptFlag = false
     }
 
     printBanner() {
@@ -116,41 +117,48 @@ class Terminal {
             switch(command) {
                 case "clear":
                     this.innerHTML = ``
+                    this.createPromptFlag = true
                     break
                 case "list":
+                    window.serial.list(this)
                     break
                 case "connect":
                     break
                 //empty command
                 case "nbsp;":
+                    this.createPromptFlag = true
                     break
                 default:
                     const p = document.createElement('p');
                     p.innerHTML = errorPrompt
                     this.appendChild(p)
+                    this.createPromptFlag = true
                     break
             }
-            //create new prompt
-            const p = document.createElement('p');
-            p.innerHTML = `${shellPrompt}`
-            this.appendChild(p)
-            //put cursor to end of line
-            let range,selection;
-            if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
-            {
-                range = document.createRange();//Create a range (a range is a like the selection but invisible)
-                range.selectNodeContents(this);//Select the entire contents of the element with the range
-                range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
-                selection = window.getSelection();//get the selection object (allows you to change selection)
-                selection.removeAllRanges();//remove any selections already made
-                selection.addRange(range);//make the range you have just created the visible selection
-            }
-            else if(document.selection)//IE 8 and lower
-            { 
-                range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
-                range.moveToElementText(this);//Select the entire contents of the element with the range
-                range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
-                range.select();//Select the range (make it the visible selection
+            if(this.createPromptFlag === true) {
+                //create new prompt
+                const p = document.createElement('p');
+                p.innerHTML = `${shellPrompt}`
+                this.appendChild(p)
+                //put cursor to end of line
+                let range,selection;
+                if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+                {
+                    range = document.createRange();//Create a range (a range is a like the selection but invisible)
+                    range.selectNodeContents(this);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    selection = window.getSelection();//get the selection object (allows you to change selection)
+                    selection.removeAllRanges();//remove any selections already made
+                    selection.addRange(range);//make the range you have just created the visible selection
+                }
+                else if(document.selection)//IE 8 and lower
+                { 
+                    range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+                    range.moveToElementText(this);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    range.select();//Select the range (make it the visible selection
+                }
+                this.createPromptFlag = false
             }
             this.scrollTop = this.scrollHeight
         }
@@ -301,9 +309,22 @@ window.onkeydown = (ev) => {
         }
     }
 }
+
 setTimeout(() => {
     container.firstChild.focus()
 }, 100)
+
 window.onfocus = () => {
     container.firstChild.focus()
 }
+
+window.serial.onList((args) => {
+    // obj = value[0]
+    // console.log(obj)
+    // ports = value[1]
+    // ports.forEach(function(port){
+    //     console.log("Port: ", port.friendlyName)
+    // })
+
+    console.log(args)
+})
