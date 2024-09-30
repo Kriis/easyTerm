@@ -24,13 +24,10 @@ function createWindow () {
   win.loadFile('index.html')
 }
 
-ipcMain.handle('list', async (_event, args) => {
-  console.log("Receive args", args)
-  return {portName: "COM4"}
-  // const ports = await SerialPort.list()
-  // const listRspData = {term: args, ports}
-  // console.log(listRspData)
-  // win.webContents.send('show_list', listRspData)
+ipcMain.handle('list', async (event, arg) => {
+  // return {portName: "COM4"}
+  const ports = await SerialPort.list()
+  win.webContents.send('show_list', [arg, ports])
 })
 
 app.whenReady().then(() => {

@@ -2,6 +2,10 @@ const container = document.getElementById('container')
 const shellPrompt = "$&nbsp;"
 const errorPrompt = `<p><span style="color:red";>&nbsp&nbspx</span> Error: Unknown command</p>`
 
+const tabPrompt ="nbsp;nbsp;"
+let numOfTerm = 0;
+const terminals = []; 
+
 class Terminal {
     constructor(location) {
         this.location = location
@@ -10,10 +14,13 @@ class Terminal {
         this.div.setAttribute("contenteditable", "true")
         this.div.setAttribute("spellcheck", "false")
         this.div.setAttribute("tabindex","0")
+        this.div.setAttribute("id", numOfTerm)
         this.div.commandHistory = []
         this.div.commandHistoryIdx = 0
         this.div.commandHistoryDir = 0 // 1 is up, 0 is down, -1 is none
         this.div.createPromptFlag = false
+        terminals.push(numOfTerm)
+        numOfTerm +=1
     }
 
     printBanner() {
@@ -102,7 +109,7 @@ class Terminal {
         }
     }
     
-    keyDownHandler(ev) {
+    keyDownCmdHandler(ev) {
         let evt = ev
         //handling enter key is press
         if(evt.key === 'Enter') {
@@ -112,7 +119,7 @@ class Terminal {
             this.commandHistory.push(command)
             this.commandHistoryIdx = this.commandHistory.length - 1
             this.commandHistoryDir = -1
-            console.log(this.commandHistory)
+            //console.log(this.commandHistory)
 
             switch(command) {
                 case "clear":
@@ -120,9 +127,10 @@ class Terminal {
                     this.createPromptFlag = true
                     break
                 case "list":
-                    window.serial.list(this)
+                    window.serial.list(this.id)
                     break
                 case "connect":
+                    // window.serial.connect(port, baudrate)
                     break
                 //empty command
                 case "nbsp;":
@@ -243,7 +251,7 @@ class Terminal {
 function createNewTerm(location) {
     term = new Terminal(location)
     term.printBanner()
-    term.div.onkeydown = term.keyDownHandler
+    term.div.onkeydown = term.keyDownCmdHandler
     term.div.onfocus = term.onFocusHandler
     term.div.onclick = term.onClickHandler
     container.appendChild(term.div)
@@ -310,6 +318,38 @@ window.onkeydown = (ev) => {
     }
 }
 
+function onListEvent(termId, ports) {
+    term = document.getElementById(termId)
+    ports.forEach(function(port){
+        const p = document.createElement('p')
+        p.innerHTML = `&nbsp;&nbsp;&nbsp;&nbsp;${port.friendlyName}`
+        term.appendChild(p)
+    })
+    //create new prompt
+    const p = document.createElement('p');
+    p.innerHTML = `${shellPrompt}`
+    term.appendChild(p)
+    //put cursor to end of line
+    let range,selection;
+    if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+    {
+        range = document.createRange();//Create a range (a range is a like the selection but invisible)
+        range.selectNodeContents(term);//Select the entire contents of the element with the range
+        range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+        selection = window.getSelection();//get the selection object (allows you to change selection)
+        selection.removeAllRanges();//remove any selections already made
+        selection.addRange(range);//make the range you have just created the visible selection
+    }
+    else if(document.selection)//IE 8 and lower
+    { 
+        range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+        range.moveToElementText(term);//Select the entire contents of the element with the range
+        range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+        range.select();//Select the range (make it the visible selection
+    }
+    term.scrollTop = term.scrollHeight
+} 
+
 setTimeout(() => {
     container.firstChild.focus()
 }, 100)
@@ -318,13 +358,6 @@ window.onfocus = () => {
     container.firstChild.focus()
 }
 
-window.serial.onList((args) => {
-    // obj = value[0]
-    // console.log(obj)
-    // ports = value[1]
-    // ports.forEach(function(port){
-    //     console.log("Port: ", port.friendlyName)
-    // })
-
-    console.log(args)
+window.serial.onList((args) => { 
+    onListEvent(args[0], args[1])
 })
