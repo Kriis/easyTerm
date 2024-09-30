@@ -120,9 +120,10 @@ class Terminal {
         if(evt.key === 'Enter') {
             evt.preventDefault(); //disable line break when hit enter
             let command = this.lastElementChild.innerHTML
+            let commandString = command.substring(2,)
             let tokens = command.split(" ")
             command = tokens[1]
-            this.commandHistory.push(command)
+            this.commandHistory.push(commandString)
             this.commandHistoryIdx = this.commandHistory.length - 1
             this.commandHistoryDir = -1
             //console.log(this.commandHistory)
@@ -138,7 +139,6 @@ class Terminal {
                     }
                     else if (tokens[2] === "baudrates") {
                         baudrates.forEach((baudrate) => {
-                            console.log(baudrate)
                             const p = document.createElement('p')
                             p.innerHTML = `&nbsp;&nbsp;&nbsp;&nbsp;${baudrate}`
                             term.appendChild(p)
