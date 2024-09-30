@@ -137,7 +137,7 @@ class Terminal {
                         window.serial.listPort(this.id)
                     }
                     else if (tokens[2] === "baudrates") {
-                        baudrates.forEach(function(baudrate){
+                        baudrates.forEach((baudrate) => {
                             console.log(baudrate)
                             const p = document.createElement('p')
                             p.innerHTML = `&nbsp;&nbsp;&nbsp;&nbsp;${baudrate}`
@@ -156,8 +156,29 @@ class Terminal {
                     }
                     break
                 case "connect":
-                    // getConnectArgs(command)
-                    // window.serial.connect(this.id, port, baudrate)
+                    if(tokens.length === 6) {
+                        let baudrate
+                        let port
+                        tokens.forEach((token, index) => {
+                            if(token === "-b") {
+                                baudrate = tokens[index + 1]
+                            }
+                            else if(token === "-p") {
+                                port = tokens[index + 1]
+                            }
+                        })
+                        // TODO: handling connect command
+                        // window.serial.connect(this.id, port, baudrate)
+                    }
+                    else {
+                        const warn = document.createElement('p');
+                        warn.innerHTML = missingArgsPrompt
+                        this.appendChild(warn)
+                        const help = document.createElement('p');
+                        help.innerHTML = `<p>&nbsp;&nbspUsage: <br>&nbsp;&nbspconnect -p &lt;port&gt; -b &lt;baudrate&gt;: establish a connection to a serial port</p>`
+                        this.appendChild(help)
+                        this.createPromptFlag = true
+                    }
                     break
                 //empty command
                 case undefined:
