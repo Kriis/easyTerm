@@ -1,10 +1,13 @@
 const container = document.getElementById('container')
 const shellPrompt = "$&nbsp;"
 const errorPrompt = `<p><span style="color:red";>&nbsp&nbspx</span> Error: Unknown command</p>`
+const missingArgsPrompt = `<p><span style="color:red";>&nbsp&nbspx</span> Error: Missing arguments</p>`
 
 const tabPrompt ="nbsp;nbsp;"
 let numOfTerm = 0;
-const terminals = []; 
+const terminals = [];
+
+const baudrates = ["9600", "14400", "19200", "38400", "57600", "115200", "230400", "460800", "921600"]
 
 class Terminal {
     constructor(location) {
@@ -108,6 +111,8 @@ class Terminal {
             range.select();//Select the range (make it the visible selection
         }
     }
+
+    getListArgs
     
     keyDownCmdHandler(ev) {
         let evt = ev
@@ -115,7 +120,8 @@ class Terminal {
         if(evt.key === 'Enter') {
             evt.preventDefault(); //disable line break when hit enter
             let command = this.lastElementChild.innerHTML
-            command = command.substring(2,)
+            let tokens = command.split(" ")
+            command = tokens[1]
             this.commandHistory.push(command)
             this.commandHistoryIdx = this.commandHistory.length - 1
             this.commandHistoryDir = -1
@@ -127,19 +133,40 @@ class Terminal {
                     this.createPromptFlag = true
                     break
                 case "list":
-                    window.serial.list(this.id)
+                    if (tokens[2] === "ports") {
+                        window.serial.listPort(this.id)
+                    }
+                    else if (tokens[2] === "baudrates") {
+                        baudrates.forEach(function(baudrate){
+                            console.log(baudrate)
+                            const p = document.createElement('p')
+                            p.innerHTML = `&nbsp;&nbsp;&nbsp;&nbsp;${baudrate}`
+                            term.appendChild(p)
+                        })
+                        this.createPromptFlag = true
+                    }
+                    else {
+                        const warn = document.createElement('p');
+                        warn.innerHTML = missingArgsPrompt
+                        this.appendChild(warn)
+                        const help = document.createElement('p');
+                        help.innerHTML = `<p>&nbsp;&nbspUsage: <br>&nbsp;&nbsplist ports: print all available ports <br>&nbsp;&nbsplist baudrates: print all available baudrate</p>`
+                        this.appendChild(help)
+                        this.createPromptFlag = true
+                    }
                     break
                 case "connect":
-                    // window.serial.connect(port, baudrate)
+                    // getConnectArgs(command)
+                    // window.serial.connect(this.id, port, baudrate)
                     break
                 //empty command
-                case "nbsp;":
+                case undefined:
                     this.createPromptFlag = true
                     break
                 default:
-                    const p = document.createElement('p');
-                    p.innerHTML = errorPrompt
-                    this.appendChild(p)
+                    const error = document.createElement('p');
+                    error.innerHTML = errorPrompt
+                    this.appendChild(error)
                     this.createPromptFlag = true
                     break
             }

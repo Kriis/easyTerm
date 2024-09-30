@@ -24,7 +24,7 @@ function createWindow () {
   win.loadFile('index.html')
 }
 
-ipcMain.handle('list', async (event, arg) => {
+ipcMain.handle('listPort', async (event, arg) => {
   // return {portName: "COM4"}
   const ports = await SerialPort.list()
   win.webContents.send('show_list', [arg, ports])
